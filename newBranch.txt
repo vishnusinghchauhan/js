@@ -1,0 +1,16 @@
+
+function searchResult123()
+    {
+   
+   
+      var fname = document.getElementById("fname").value;
+      var lname = document.getElementById("lname").value;
+      var company = document.getElementById("company").value;
+      var position = document.getElementById("position").value;
+      var country = document.getElementById("country").value;
+      var email = document.getElementById("email").value;
+      var hidden = document.getElementById("hidden").value;
+      var from = "form";
+      var user_ID = <?php echo get_current_user_id(); ?>;
+
+}
