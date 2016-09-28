@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js"> 
+    <head>
+        <meta charset="UTF-8" />
+		<title>Login and Registration Form with HTML5 and CSS3</title>
+		<link rel="stylesheet" href="css/demo.css">
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		
+		<script src="js/jquery.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/angular.min.js"></script>
+		<script src="js/angular-messages.js"></script>
+
+		<script>
+		var app = angular.module('myApp', ['ngMessages','ngFileUpload']);
+		
+		app.controller('myCtrl', ['$scope', '$http', function ($scope,$http) {
+			var empCtrl = this;
+			empCtrl.newEmp = {};
+			
+				$http({
+				method: 'GET',
+				//url: 'http://localhost:8080/emps'
+				url: 'emps',
+				headers:{	}
+				}).then(function(response) {	
+					empCtrl.emps = response.data;
+					//empCtrl.test = 	(Object.keys(empCtrl.emps[0].hobby)).filter((elm)=>{ return empCtrl.emps[0].hobby[elm]}).join()
+						//				console.log(empCtrl.test)
+
+				});	
+				
+				empCtrl.removeEmp = function(id){
+					$http({
+						method: 'DELETE',
+						url: 'delete/'+id,
+						headers: {}
+					});
+					empCtrl.emps = empCtrl.emps.filter(function(elem){
+						return elem._id != id;
+					});	
+				}
+				
+				empCtrl.addEmp = function(form){
+					console.log(empCtrl.newEmp);
+					$http({
+						method: 'POST',
+						headers: {'Content-Type': 'application/json'}, 
+						url: 'addemps',					
+						data: empCtrl.newEmp
+						}).then(function(response) {
+						var empData = response.data;
+						empCtrl.emps.push(response.data);						
+					});				
+				}
+				
+				
+				
+				empCtrl.selectedEmp = {};
+				empCtrl.selectedEmpIfo = function(id){
+					empCtrl.emps.forEach(function(elem){
+						if(elem._id == id) {
+							empCtrl.selectedEmp = elem;
+						}			
+					});
+				}
+				
+				empCtrl.addUpdate = function(myupdate){				
+				//empCtrl.selectedEmp.hobby = Object.keys(empCtrl.selectedEmp.hobby)
+				console.log(empCtrl.selectedEmp);
+					$http({
+						method: 'PUT',
+						headers: {}, 
+						url: 'updateinfo/'+empCtrl.selectedEmp._id,					
+						data: empCtrl.selectedEmp
+						}).then(function(response) {
+						//console.log(response.data);
+						/*empCtrl.emps.forEach(function(elem,index){
+							if(elem._id == _id) 
+							empCtrl.emps[index] = response.data;
+						});	*/				
+					});
+				
+				}			
+		}]);
+		
+		app.filter('hobbyFilter', function() {
+			  return function(input) {
+				//console.log(input);
+				return (Object.keys(input)).filter((elm)=>input[elm]).join();
+			  }
+		});
+		</script>
+		
+    </head>
+	
+    <div ng-app="myApp" ng-controller="myCtrl as empCtrl">
+
+	 
+        <div class="container">
+            <header>
+                <h2>SIMPLE ADD UPDATE DELETE </h2>
+            </header>
+            <section>	
+
+			<div class="panel">
+           
+                <div class="panel-content">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>S.N.</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Age</th>
+						<th>Gender</th>
+						<th>Class</th>
+						<th>Action</th>
+						 <a class="btn btn-transparent btn-primary" data-toggle="modal" data-target="#add">Add</a>
+						
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="emp in empCtrl.emps track by $index">
+						<td>{{$index+1}}</td>
+                         <td>{{emp.first}}</td>
+                        <td>{{emp.last}}</td>
+                        <td>{{emp.age}}</td>
+                        <td>{{emp.gender}}</td>						 
+						<td>{{ emp.hobby | hobbyFilter}}</td>
+						<td>{{emp.branch}}</td>
+                        <td><img width="30" src="images/bg.jpg"> {{emp.img}} </td>						
+						<td>						
+						<a class="btn btn-transparent btn-rounded"  ng-click="empCtrl.selectedEmpIfo(emp._id);" data-toggle="modal" data-target="#update">Update</a>
+						<a class="btn btn-transparent btn-rounded" ng-click="empCtrl.removeEmp(emp._id);">Delete</a>
+						</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>			
+ 
+            </section>
+        </div>
+    </body>
+
+	
+	
+	<div class="modal fade" id="add" role="dialog">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal">&times;</button>
+			  <h4 class="modal-title">Add New Item</h4>
+			</div>
+			<div class="modal-body">
+				<form  name="form" ng-submit="empCtrl.addEmp(form)" class="form-horizontal" >	
+				
+					<div class="form-group">
+					  <label class="col-sm-3 control-label"> Branch </label>
+					  <div class="col-sm-9 prepend-icon">
+						<select class="form-control" ng-required="true"  ng-model="empCtrl.newEmp.branch" name="branch" >
+						 <option value="" selected>Select</option>
+						  <option value="BCA">BCA</option>
+						  <option value="MCA">MCA</option>
+						  <option value="BTECH">BTECH</option>
+						</select>
+						<span ng-messages="addForm.branch.$error" 
+							 ng-if='addForm.branch.$dirty  || addForm.$submitted' role="alert">
+							<span ng-message="required" class="error"> Select branch Name </span>
+						</span>
+					  </div>
+					</div>
+					
+					<div class="form-group">
+					  <label class="col-sm-3 control-label"> Upload File </label>
+					  <div class="col-sm-9 prepend-icon">
+						
+						<input type="file" ngf-select ng-model="empCtrl.newEmp.file" 
+							name="file" ngf-pattern="'image/*'" accept="image/*" ngf-max-size="20MB"  />
+					  </div>
+					</div>
+			
+					<div class="form-group">
+					  <label class="col-sm-3 control-label">First Name </label>
+					  <div class="col-sm-9 prepend-icon">
+						<input type="text" name="firstName" class="form-control"  ng-model="empCtrl.newEmp.first" ng-minlength ='3'  ng-required='true' >
+						<span ng-messages="addForm.firstName.$error" 
+							 ng-if='addForm.firstName.$dirty  || addForm.$submitted' role="alert">
+							<span ng-message="required" class="error">First Name is required</span>
+							<span ng-message="minlength" class="error">Min. 3 Characters</span>
+						</span>
+					  </div>
+					</div>
+					
+					<div class="form-group">
+					  <label class="col-sm-3 control-label">Last Name </label>
+					  <div class="col-sm-9 prepend-icon">
+						<input type="text" name="lastName" class="form-control" ng-model="empCtrl.newEmp.last" ng-required='true'  >
+						<span ng-messages="addForm.lastName.$error" 
+							 ng-if='addForm.lastName.$dirty  || addForm.$submitted' role="alert">
+							<span ng-message="required" class="error">Last Name is required</span>
+						</span>
+					  </div>
+					</div>
+					
+					<div class="form-group">
+					  <label class="col-sm-3 control-label">Age</label>
+					  <div class="col-sm-9 prepend-icon">
+						 <input type="number" class="form-control" name="age" ng-model="empCtrl.newEmp.age" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" step="1" required />
+						<span ng-messages="addForm.age.$error" 
+							 ng-if='addForm.age.$dirty  || addForm.$submitted' role="alert">
+							<span ng-message="required" class="error">age should be Number </span>
+						</span>
+					  </div>
+					</div>
+					
+					<div class="form-group">
+					  <label class="col-sm-3 control-label">Gender</label>
+					  <div class="col-sm-9 p-t-10">
+						<div class="input-group">
+						  <div class="icheck-inline">
+							<label>
+							<input type="radio" name="sex" class="icheck"  ng-model="empCtrl.newEmp.gender" value="male" required  > Male
+							</label>
+							<label>
+							<input type="radio" name="sex" value="female" ng-model="empCtrl.newEmp.gender" class="icheck" required  > Female
+							</label>
+						  </div>
+						  <span ng-messages="addForm.sex.$error" 
+							 ng-if='addForm.sex.$dirty  || addForm.$submitted' role="alert">
+							<span ng-message="required" class="error">Gender is required</span>
+						  </span>
+						</div>
+					  </div>
+					</div>
+					
+					<div class="form-group">
+					  <label class="col-sm-3 control-label">Hpbby</label>
+					  <div class="col-sm-9 prepend-icon">
+						<div class="option-group">
+						    <label>
+								<input type="checkbox" ng-model="empCtrl.newEmp.hobby.cricket"
+								ng-true-value="true" ng-false-value="false"> Cricket
+						    </label>
+						    <label>
+								<input type="checkbox" ng-model="empCtrl.newEmp.hobby.bollyball"
+								ng-true-value="true" ng-false-value="false"> Bollyball
+							</label>						 
+						</div>
+					  </div>
+					</div>
+					
+					<div class="row">
+					  <div class="col-sm-9 col-sm-offset-3">
+						<div class="pull-right">
+						  <input type="submit"   class="btn btn-embossed btn-primary m-r-20"  value="Save">
+						 
+						</div>
+					  </div>
+					</div>
+                </form>
+			</div>
+		  </div>	  
+		</div>
+	</div>
+
+	<div class="modal fade" id="update" role="dialog">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal">&times;</button>
+			  <h4 class="modal-title">Update Item</h4>
+			</div>
+			<div class="modal-body">
+			  <form  name="update"  name="myupdate" ng-submit="empCtrl.addUpdate(myupdate)"  class="form-horizontal">
+			  
+					<div class="form-group">
+					  <label class="col-sm-3 control-label"> Cource </label>
+					  <div class="col-sm-9 prepend-icon">
+						<select class="form-control" ng-required="true"  ng-model="empCtrl.selectedEmp.branch" name="course" >
+						 <option value="" selected>Select</option>
+						  <option value="BCA">BCA</option>
+						  <option value="MCA">MCA</option>
+						  <option value="BTECH">BTECH</option>
+						</select>
+					  </div>
+					</div>
+					
+					<div class="form-group">
+					  <label class="col-sm-3 control-label"> Upload File </label>
+					  <div class="col-sm-9 prepend-icon">
+						 <input 
+							type="file" 
+							ngf-select 
+							ng-model="empCtrl.selectedEmp.file" 
+							name="file" 
+							ngf-pattern="'image/*'"
+							accept="image/*" 
+							ngf-max-size="20MB" 
+						/>
+					  </div>
+					</div>
+					
+					<div class="form-group">
+					  <label class="col-sm-3 control-label">First Name </label>
+					  <div class="col-sm-9 prepend-icon">
+					<input type="text" name="name" class="form-control" ng-model="empCtrl.selectedEmp.first" >
+					  </div>
+					</div>
+					<div class="form-group">
+					  <label class="col-sm-3 control-label">Last Name </label>
+					  <div class="col-sm-9 prepend-icon">
+						<input type="text" name="last" ng-model="empCtrl.selectedEmp.last" class="form-control">
+					  </div>
+					</div>
+					<div class="form-group">
+					  <label class="col-sm-3 control-label">Age</label>
+					  <div class="col-sm-9 prepend-icon">
+						<input type="text" name="age" ng-model="empCtrl.selectedEmp.age" class="form-control ">
+					  </div>
+					</div>
+					<div class="form-group">
+					  <label class="col-sm-3 control-label">Gender</label>
+					  <div class="col-sm-9 p-t-10">
+						<div class="input-group">
+						  <div class="icheck-inline">
+							<label>
+							<input type="radio" name="sex" class="icheck" ng-model="empCtrl.selectedEmp.gender"  value="male" > Male
+							</label>
+							<label>
+							<input type="radio" name="sex" value="female" ng-model="empCtrl.selectedEmp.gender"  class="icheck"> Female
+							</label>
+						  </div>
+						</div>
+					  </div>
+					</div>
+					<div class="form-group">
+					  <label class="col-sm-3 control-label">Hobby</label>
+					  <div class="col-sm-9 prepend-icon">
+						<div class="option-group">
+						<label>
+						<input type="checkbox" ng-model="empCtrl.selectedEmp.hobby.cricket"
+						> Cricket
+						</label>
+						<label>
+						<input type="checkbox" ng-model="empCtrl.selectedEmp.hobby.bollyball" 
+						> Bollyball
+						</label>
+
+
+						</div>
+					  </div>
+					</div>
+				<div class="row">
+					  <div class="col-sm-9 col-sm-offset-3">
+						<div class="pull-right">
+						
+						   <input type="submit"   class="btn btn-embossed btn-primary m-r-20"  value="Update">
+						 
+						</div>
+					  </div>
+					</div>
+                </form>
+			</div>
+		  </div>		  
+		</div>
+	</div>
+  
+  
+  
+	</html>

@@ -1,0 +1,23 @@
+{
+  "name": "crud",
+  "version": "0.0.1",
+  "description": "crud operation",
+  "main": "app.js",
+  "scripts": {
+    "test": "grunt crud"
+  },
+  "keywords": [
+    "banna"
+  ],
+  "author": "banna",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "mongodb": "^2.2.10",
+    "mongoose": "^4.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.10.2"
+  }
+}
