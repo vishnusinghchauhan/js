@@ -6,8 +6,20 @@
 	<script src="lib/jquery.js"></script>
 	<script src="dist/jquery.validate.js"></script>
 	<script>
-	
-  
+
+	// enter number only
+	 jQuery('.numbersOnly').keyup(function () { 
+	      this.value = this.value.replace(/[^0-9\.]/g,'');
+	});
+
+	// enter character only
+	  $("#inputTextBox").keypress(function(event){
+	      var inputValue = event.which;
+	      if(!(inputValue >= 65 && inputValue <= 120) && (inputValue != 32 && inputValue != 0)) { 
+		  event.preventDefault(); 
+	      }
+	  });
+
 	$.validator.setDefaults({
 		submitHandler: function() {
 			alert("submitted!");
